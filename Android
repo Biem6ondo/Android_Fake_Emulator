@@ -1,0 +1,473 @@
+local Workspace = game.Workspace
+-- == Sound == --
+local Notify_Sound_First = Instance.new("Sound", Workspace)
+Notify_Sound_First.SoundId = "rbxassetid://7695856187"
+Notify_Sound_First.Volume = 0.5
+Notify_Sound_First.Looped = false
+
+local Clock_H = os.date("%H")
+local Clock_M = os.date("%S")
+local Random = math.random(0, 9999)
+
+local CoreGui = game.CoreGui
+local Folder_System = Instance.new("Folder", CoreGui)
+Folder_System.Name = "Phone"
+
+local ScreenGui = Instance.new("ScreenGui", Folder_System)
+local ScreenGui_Two = Instance.new("ScreenGui", Folder_System)
+ScreenGui.Name = "rbxOS"
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.DisplayOrder = 1000
+ScreenGui_Two.Name = Random
+ScreenGui_Two.IgnoreGuiInset = true
+ScreenGui_Two.DisplayOrder = 1001
+-- == App Base == --
+local App_Base_Screen = Instance.new("Frame", ScreenGui)
+App_Base_Screen.Size = UDim2.new(1, 0, 1, 0)
+App_Base_Screen.Position = UDim2.new(0, 0, 0, 0)
+App_Base_Screen.BackgroundTransparency = 1
+App_Base_Screen.Name = "Base"
+
+local Zoom_Base = Instance.new("Frame", App_Base_Screen)
+Zoom_Base.Size = UDim2.new(1, 0, 1, 0)
+Zoom_Base.BackgroundTransparency = 1
+Zoom_Base.Name = "Zoom_Base"
+Zoom_Base.Visible = false
+
+local player = game.Players.LocalPlayer
+local camera = game:GetService("Workspace").CurrentCamera
+local originalFieldOfView = camera.FieldOfView
+local zoomDuration = 0.2
+
+local function smoothZoom(targetFieldOfView, duration)
+    local startTime = tick()
+    local startFov = camera.FieldOfView
+
+    while tick() - startTime < duration do
+        local elapsedTime = tick() - startTime
+        local progress = elapsedTime / duration
+        camera.FieldOfView = startFov + (targetFieldOfView - startFov) * progress
+        wait(0)
+    end
+
+    camera.FieldOfView = targetFieldOfView
+end
+
+local function createButton(position, zoomFactor, label)
+    local zoombutton = Instance.new("TextButton")
+    zoombutton.Parent = Zoom_Base
+    zoombutton.Size = UDim2.new(0, 40, 0, 40) 
+    zoombutton.Position = position
+    zoombutton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    zoombutton.Text = label
+    zoombutton.TextSize = 10
+    zoombutton.TextColor3 = Color3.new(1, 1, 1) 
+    zoombutton.AutoButtonColor = true
+    zoombutton.BackgroundTransparency = 0.4
+    
+    local corner = Instance.new("UICorner", zoombutton)
+    corner.CornerRadius = UDim.new(1, 0)
+
+    zoombutton.MouseButton1Click:Connect(function()
+        smoothZoom(originalFieldOfView / zoomFactor, zoomDuration)
+    end)
+end
+
+createButton(UDim2.new(0.4, 0, 0.6, 0), 0, "x0")
+createButton(UDim2.new(0.45, 0, 0.6, 0), 2, "x2")
+createButton(UDim2.new(0.5, 0, 0.6, 0), 5, "x5")
+createButton(UDim2.new(0.55, 0, 0.6, 0), 10, "x10")
+createButton(UDim2.new(0.6, 0, 0.6, 0), 100, "x100")
+
+local Camera_Frame = game.CoreGui.RobloxGui.EntrypointButtonFrame.EntrypointButtonContainer
+local Camera_Button = game.CoreGui.RobloxGui.EntrypointButtonFrame.EntrypointButtonContainer.CameraButton
+local Camera_Icon = game.CoreGui.RobloxGui.EntrypointButtonFrame.EntrypointButtonContainer.CameraButton.CameraIcon
+Camera_Frame.Visible = false
+
+-- FPS count
+local FrameFPS = Instance.new("Frame", ScreenGui_Two)
+local FPSLabel = Instance.new("TextLabel", FrameFPS)
+
+FrameFPS.Name = "FrameFPS"
+FrameFPS.Position = UDim2.new(0, 0, 1, -30)
+FrameFPS.Size = UDim2.new(0, 100, 0, 30)
+FrameFPS.BackgroundTransparency = 0.5
+FrameFPS.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+FrameFPS.BorderSizePixel = 0
+
+FPSLabel.Name = "FPSLabel"
+FPSLabel.Size = UDim2.new(1, 0, 1, 0)
+FPSLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+FPSLabel.TextSize = 14
+FPSLabel.Text = "FPS: 0"
+FPSLabel.BackgroundTransparency = 1
+FPSLabel.TextSize = 20
+
+local RunService = game:GetService("RunService")
+local fps = 0
+
+RunService.RenderStepped:Connect(function(deltaTime)
+    fps = math.floor(1 / deltaTime)
+    FPSLabel.Text = "FPS: " .. fps
+    
+    if fps == 0 then
+        FPSLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    elseif fps > 0 and fps <= 10 then
+        FPSLabel.TextColor3 = Color3.fromRGB(255, 102, 102)
+    elseif fps > 10 and fps <= 30 then
+        FPSLabel.TextColor3 = Color3.fromRGB(255, 165, 0) 
+    elseif fps == 30 then
+        FPSLabel.TextColor3 = Color3.fromRGB(255, 200, 100) 
+    elseif fps > 30 and fps <= 40 then
+        FPSLabel.TextColor3 = Color3.fromRGB(144, 238, 144) 
+    elseif fps > 50 then
+        FPSLabel.TextColor3 = Color3.fromRGB(0, 128, 255) 
+    end
+end)
+
+-- Toggle
+local Toggle = Instance.new("ImageButton", ScreenGui_Two)
+Toggle.Position = UDim2.new(0.5, 0, 0, 0)
+Toggle.Size = UDim2.new(0, 40, 0, 40)
+Toggle.MouseButton1Click:Connect(function()
+ScreenGui.Enabled = not ScreenGui.Enabled
+end)
+Toggle.Image = "http://www.roblox.com/asset/?id=12708406315"
+Toggle.BackgroundTransparency = 1
+Toggle.ImageColor3 = Color3.new(0, 1, 0)
+
+-- == System == --
+-- Opening
+local Startup = Instance.new("Frame", ScreenGui)
+Startup.Size = UDim2.new(1, 0, 1, 0)
+Startup.Position = UDim2.new(0, 0, 0, 0)
+Startup.ZIndex = inf
+Startup.Name = "???"
+Startup.BackgroundColor3 = Color3.new(0, 0, 0)
+wait(0.25)
+Startup:Destroy()
+Notify_Sound_First:Play()
+
+-- Frame for Special Things
+local Special = Instance.new("Frame", ScreenGui)
+Special.Size = UDim2.new(1, 0, 1, 0)
+Special.Position = UDim2.new(0, 0, 0, 0)
+Special.ZIndex = 500
+Special.Name = "com_special_for_control"
+Special.BackgroundTransparency = 1
+Special.BackgroundColor3 = Color3.new(0, 0, 0)
+
+-- Notify
+local TweenService = game:GetService("TweenService")
+
+local Frame_Notify = Instance.new("Frame", Special)
+Frame_Notify.Size = UDim2.new(0.5, 0, 0.5, 0)
+Frame_Notify.Position = UDim2.new(0.5, 0, 0.75, 0)
+Frame_Notify.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame_Notify.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame_Notify.ZIndex = 5000
+Frame_Notify.Visible = false
+Frame_Notify.Name = "Application_Notify"
+
+local Frame_Notify_UICorner = Instance.new("UICorner", Frame_Notify)
+Frame_Notify_UICorner.CornerRadius = UDim.new(0, 5)
+
+local Frame_Notify_Title = Instance.new("TextLabel", Frame_Notify)
+Frame_Notify_Title.Size = UDim2.new(0.96, 0, 0.2, 0)
+Frame_Notify_Title.Position = UDim2.new(0.02, 0, 0, 0)
+Frame_Notify_Title.ZIndex = 5001
+Frame_Notify_Title.BackgroundTransparency = 1
+Frame_Notify_Title.TextSize = 20
+Frame_Notify_Title.TextStrokeTransparency = 0
+Frame_Notify_Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local Frame_Notify_Text = Instance.new("TextLabel", Frame_Notify)
+Frame_Notify_Text.Position = UDim2.new(0.02, 0, 0.2, 0)
+Frame_Notify_Text.Size = UDim2.new(0.96, 0, 0.6, 0)
+Frame_Notify_Text.ZIndex = 5001
+Frame_Notify_Text.TextSize = 15
+Frame_Notify_Text.BackgroundTransparency = 1
+Frame_Notify_Text.TextXAlignment = Enum.TextXAlignment.Left
+Frame_Notify_Text.TextYAlignment = Enum.TextYAlignment.Top
+
+local Frame_Notify_Button_Three = Instance.new("TextButton", Frame_Notify)
+Frame_Notify_Button_Three.Size = UDim2.new(0.3, 0, 0.2, 0)
+Frame_Notify_Button_Three.Position = UDim2.new(0.7, 0, 0.8, 0)
+Frame_Notify_Button_Three.ZIndex = 5001
+Frame_Notify_Button_Three.TextSize = 15
+Frame_Notify_Button_Three.BackgroundTransparency = 1
+Frame_Notify_Button_Three.TextStrokeTransparency = 0
+
+local Frame_Notify_Button_Two = Instance.new("TextButton", Frame_Notify)
+Frame_Notify_Button_Two.Size = UDim2.new(0.3, 0, 0.2, 0)
+Frame_Notify_Button_Two.Position = UDim2.new(0.4, 0, 0.8, 0)
+Frame_Notify_Button_Two.ZIndex = 5001
+Frame_Notify_Button_Two.TextSize = 15
+Frame_Notify_Button_Two.BackgroundTransparency = 1
+Frame_Notify_Button_Two.TextStrokeTransparency = 0
+
+function ShowNotify(title, text, buttonTwoText, buttonTwoFunc, buttonThreeText, buttonThreeFunc)
+    Frame_Notify_Title.Text = title or "Title"
+    Frame_Notify_Text.Text = text or "Default Text"
+    Frame_Notify_Button_Two.Text = buttonTwoText or "Button Two"
+    Frame_Notify_Button_Three.Text = buttonThreeText or "Button Three"
+    Frame_Notify.Visible = true
+    
+    Frame_Notify_Button_Two.MouseButton1Click:Connect(function()
+        if buttonTwoFunc then
+            buttonTwoFunc()
+        end
+    end)
+    
+    Frame_Notify_Button_Three.MouseButton1Click:Connect(function()
+        if buttonThreeFunc then
+            buttonThreeFunc()
+        end
+    end)
+end
+
+-- Notification Bar
+local Notify_Bar = Instance.new("Frame", Special)
+Notify_Bar.Size = UDim2.new(1, 0, 0.07, 0)
+Notify_Bar.BackgroundTransparency = 0.4
+Notify_Bar.BackgroundColor3 = Color3.new(0, 0, 0)
+Notify_Bar.ZIndex = 501
+Notify_Bar.Name = "com.notify.system"
+
+-- Notify Bar Clock
+local Notify_Bar_Clock = Instance.new("TextLabel", Notify_Bar)
+Notify_Bar_Clock.Text = "24:59:59"
+Notify_Bar_Clock.ZIndex = 501
+Notify_Bar_Clock.Size = UDim2.new(0, 100, 1, 0)
+Notify_Bar_Clock.Position = UDim2.new(0, 20, 0, 0)
+Notify_Bar_Clock.Name = "Notify_Bar_Clock:/Clock.Time"
+Notify_Bar_Clock.TextSize = 15
+Notify_Bar_Clock.TextColor3 = Color3.new(1, 1, 1)
+Notify_Bar_Clock.BackgroundTransparency = 1
+
+-- Home
+local Home_Screen = Instance.new("ImageButton", ScreenGui)
+Home_Screen.Size = UDim2.new(1, 0, 1, 0)
+Home_Screen.Position = UDim2.new(0, 0, 0, 0)
+Home_Screen.Name = "com.homescreen.rbxos"
+Home_Screen.AutoButtonColor = false
+Home_Screen.BackgroundColor3 = Color3.new(0, 0, 0)
+
+-- == APP == --
+-- Camera App
+local Camera_App_Frame = Instance.new("Frame", Home_Screen)
+Camera_App_Frame.Size = UDim2.new(0, 100, 0, 75, 0)
+Camera_App_Frame.Position = UDim2.new(0.1, 0, 0.2, 0)
+Camera_App_Frame.BackgroundTransparency = 1
+
+local Camera_App = Instance.new("ImageButton", Camera_App_Frame)
+Camera_App.Size = UDim2.new(0, 50, 0, 50)
+Camera_App.BackgroundTransparency = 1
+Camera_App.Image = "http://www.roblox.com/asset/?id=14457881775"
+Camera_App.Position = UDim2.new(0,25, 0, 0, 0)
+Camera_App.MouseButton1Click:Connect(function()
+Home_Screen.Visible = false
+Camera_Frame.Visible = true
+Zoom_Base.Visible = true
+ShowNotify(
+    "Warning!",
+    "Script just for fun\nOpen App?",
+    "Exit",
+    function()
+Camera_Frame.Visible = false
+Home_Screen.Visible = true
+Frame_Notify.Visible = false
+Zoom_Base.Visible = false
+  end,
+    "Ok",
+    function() Frame_Notify.Visible = false end
+)
+end)
+
+Camera_App_UICorner = Instance.new("UICorner", Camera_App)
+Camera_App_UICorner.CornerRadius = UDim.new(1, 0)
+
+local Camera_App_Name = Instance.new("TextLabel", Camera_App_Frame)
+Camera_App_Name.Size = UDim2.new(1, 0, 0.25, 0)
+Camera_App_Name.BackgroundTransparency = 1
+Camera_App_Name.Position = UDim2.new(0, 0, 0.75, 0)
+Camera_App_Name.Text = "Camera"
+Camera_App_Name.TextSize = 10
+Camera_App_Name.TextColor3 = Color3.new(1, 1, 1)
+
+-- Google Search Bar
+local Google_Search_Bar = Instance.new("TextBox", Home_Screen)
+Google_Search_Bar.Size = UDim2.new(0.8, 0, 0, 35)
+Google_Search_Bar.Position = UDim2.new(0.5, 0, 0.9, 0)
+Google_Search_Bar.BackgroundColor3 = Color3.new(1, 1, 1)
+Google_Search_Bar.AnchorPoint = Vector2.new(0.5, 0)
+Google_Search_Bar.Text = ""
+Google_Search_Bar.Name = "Google_Search_Bar"
+
+-- Google Icon
+local Google_Search_Bar_Icon = Instance.new("ImageButton", Google_Search_Bar)
+Google_Search_Bar_Icon.Size = UDim2.new(0, 25, 1, 0)
+Google_Search_Bar_Icon.Image = "rbxassetid://6377780358"
+Google_Search_Bar_Icon.BackgroundTransparency = 1
+Google_Search_Bar_Icon.Position = UDim2.new(0, 5, 0, 0)
+Google_Search_Bar_Icon.ScaleType = Enum.ScaleType.Fit
+Google_Search_Bar_Icon.Name = "Google_Icon"
+
+local Google_Search_Bar_UICorner = Instance.new("UICorner", Google_Search_Bar)
+Google_Search_Bar_UICorner.CornerRadius = UDim.new(1, 0)
+
+-- Lock
+local Lock_Screen= Instance.new("ImageButton", ScreenGui)
+Lock_Screen.Size = UDim2.new(1, 0, 1, 0)
+Lock_Screen.Position = UDim2.new(0, 0, 0, 0)
+Lock_Screen.Image = "rbxassetid://7866490119"
+Lock_Screen.Name = "com.lockscreen.rbxos"
+Lock_Screen.AutoButtonColor = false
+local dragStart, startPos, isDragging
+
+local function onInputBegan(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragStart = input.Position
+        startPos = Lock_Screen.Position
+        isDragging = true
+    end
+end
+
+local function onInputEnded(input)
+    if isDragging then
+        isDragging = false
+        if Lock_Screen.Position.Y.Offset < -250 then
+            Lock_Screen.Visible = false
+ShowNotify(
+    "Welcome!",
+    "This script is not complete yet\nWe will try to update it",
+    "",
+    function() end,
+    "Ok",
+    function() Frame_Notify.Visible = false end
+)
+Lock_Screen.Position = UDim2.new(0, 0, 0, 0)
+        else
+            Lock_Screen.Position = UDim2.new(0, 0, 0, 0)
+        end
+    end
+end
+
+local function onInputChanged(input)
+    if isDragging then
+        local delta = input.Position - dragStart
+        local newY = startPos.Y.Offset + delta.Y
+
+        if newY >= 0 then
+            newY = 0
+        end
+        
+        Lock_Screen.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset, startPos.Y.Scale, newY)
+    end
+end
+
+Lock_Screen.InputBegan:Connect(onInputBegan)
+Lock_Screen.InputEnded:Connect(onInputEnded)
+Lock_Screen.InputChanged:Connect(onInputChanged)
+
+-- Swipe to open
+local Swipe_Open = Instance.new("TextLabel", Lock_Screen)
+Swipe_Open.Size = UDim2.new(1, 0, 0.1, 0)
+Swipe_Open.Position = UDim2.new(0, 0, 0.9, 0)
+Swipe_Open.TextSize = 15
+Swipe_Open.Name = "com.lockscreen.rbxos:/swipe.open"
+Swipe_Open.Text = "Swipe to open"
+Swipe_Open.BackgroundTransparency = 1
+Swipe_Open.TextColor3 = Color3.new(1, 1, 1)
+
+-- Home Clock
+local Lock_Screen_Clock = Instance.new("TextButton", Lock_Screen)
+Lock_Screen_Clock.Size = UDim2.new(0.2, 0, 0.5, 0)
+Lock_Screen_Clock.Position = UDim2.new(0.05, 0, 0.2, 0)
+Lock_Screen_Clock.Text = "24\n59"
+Lock_Screen_Clock.TextSize = 75
+Lock_Screen_Clock.BackgroundTransparency = 1
+Lock_Screen_Clock.TextColor3 = Color3.new(1, 1, 1)
+Lock_Screen_Clock.Name = "com.lockscreen.rbxos:/Clock"
+
+
+local Lock_Screen_Date = Instance.new("TextLabel", Lock_Screen)
+Lock_Screen_Date.Size = UDim2.new(0.1, 0, 0.1, 0)
+Lock_Screen_Date.Position = UDim2.new(0, 20, 0.1, 0)
+Lock_Screen_Date.TextSize = 13
+Lock_Screen_Date.TextColor3 = Color3.new(1, 1, 1)
+Lock_Screen_Date.BackgroundTransparency = 1
+Lock_Screen_Date.Name = "com.lockscreen.rbxos:/Date"
+
+local function updateClock()
+    while true do
+        local Clock_H = os.date("%H")
+        local Clock_M = os.date("%M")
+        local Clock_S = os.date("%S")
+        local Clock_D = os.date("%d")
+        local Clock_Y = os.date("%Y")
+        local Clock_m = os.date("%m")
+        
+        Notify_Bar_Clock.Text = Clock_H .. ":" .. Clock_M .. ":" .. Clock_S
+        Lock_Screen_Clock.Text = Clock_H .. "\n" .. Clock_M
+        Lock_Screen_Date.Text = Clock_D .. ", " .. Clock_m .. " " .. Clock_Y
+        
+        wait(0)
+    end
+end
+
+spawn(updateClock)
+
+-- == Animated Gui == --
+local function showNotify()
+    Frame_Notify.Visible = true
+    Frame_Notify.Position = UDim2.new(0.5, 0, 0.75, 0)
+    Frame_Notify.BackgroundTransparency = 1
+    
+    local frameTween = TweenService:Create(Frame_Notify, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        BackgroundTransparency = 0
+    })
+    
+    local specialTween = TweenService:Create(Special, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.3
+    })
+    
+    frameTween:Play()
+    specialTween:Play()
+end
+
+local function hideNotify()
+    local frameTween = TweenService:Create(Frame_Notify, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0.5, 0, 0.75, 0),
+        BackgroundTransparency = 1
+    })
+    
+    local specialTween = TweenService:Create(Special, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 1
+    })
+    
+    frameTween:Play()
+    specialTween:Play()
+    
+    frameTween.Completed:Connect(function()
+        Frame_Notify.Visible = false
+    end)
+end
+
+Frame_Notify:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Frame_Notify.Visible == true then
+        showNotify()
+    else
+        hideNotify()
+    end
+end)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Biem6ondo/Android_Package/refs/heads/main/Packed"))()
+
+while wait() do
+Camera_Frame.Size = UDim2.new(0, 75, 0, 75)
+Camera_Frame.Position = UDim2.new(0.5, 0, 0.9, 0)
+Camera_Button.BackgroundColor3 = Color3.new(1, 0, 0)
+Camera_Icon.Image = ""
+end
