@@ -226,13 +226,76 @@ function ShowNotify(title, text, buttonTwoText, buttonTwoFunc, buttonThreeText, 
     end)
 end
 
--- Notification Bar
 local Notify_Bar = Instance.new("Frame", Special)
 Notify_Bar.Size = UDim2.new(1, 0, 0.07, 0)
 Notify_Bar.BackgroundTransparency = 0.4
 Notify_Bar.BackgroundColor3 = Color3.new(0, 0, 0)
 Notify_Bar.ZIndex = 501
-Notify_Bar.Name = "com.notify.system"
+Notify_Bar.Name = "com_notify_system"
+
+Notify_Bar:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Notify_Bar.Visible then
+        Notify_Bar:TweenPosition(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.5, true)
+    else
+        Notify_Bar:TweenPosition(UDim2.new(0, 0, -0.07, 0), Enum.EasingDirection.In, Enum.EasingStyle.Quart, 0.5, true)
+    end
+end)
+
+local Control_Bar = Instance.new("Frame", Special)
+Control_Bar.Size = UDim2.new(1, 0, 0.07, 0)
+Control_Bar.Position = UDim2.new(0, 0, 1.07, 0)
+Control_Bar.BackgroundColor3 = Color3.new(0, 0, 0)
+Control_Bar.BackgroundTransparency = 0.4
+Control_Bar.ZIndex = math.huge
+Control_Bar.AnchorPoint = Vector2.new(0, 1)
+Control_Bar.Name = "Navigation_Bar"
+Control_Bar.Visible = false
+
+Control_Bar:GetPropertyChangedSignal("Visible"):Connect(function()
+    if Control_Bar.Visible then
+        Control_Bar:TweenPosition(UDim2.new(0, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.5, true)
+    else
+        Control_Bar:TweenPosition(UDim2.new(0, 0, 1.07, 0), Enum.EasingDirection.In, Enum.EasingStyle.Quart, 0.5, true)
+    end
+end)
+
+local Control_Bar_Back = Instance.new("TextButton", Control_Bar)
+Control_Bar_Back.Size = UDim2.new(0, 50, 1, 0)
+Control_Bar_Back.Position = UDim2.new(0.25, 0, 0, 0)
+Control_Bar_Back.Text = " ▶"
+Control_Bar_Back.TextScaled = true
+Control_Bar_Back.ZIndex = math.huge
+Control_Bar_Back.BackgroundTransparency = 1
+Control_Bar_Back.TextColor3 = Color3.new(1, 1, 1)
+Control_Bar_Back.Rotation = 180
+
+local Control_Bar_Home = Instance.new("TextButton", Control_Bar)
+Control_Bar_Home.Size = UDim2.new(0, 50, 1, 0)
+Control_Bar_Home.Position = UDim2.new(0.5, 0, 0, 0)
+Control_Bar_Home.Text = "•"
+Control_Bar_Home.TextSize = 55
+Control_Bar_Home.ZIndex = math.huge
+Control_Bar_Home.BackgroundTransparency = 1
+Control_Bar_Home.TextColor3 = Color3.new(1, 1, 1)
+
+local Control_Bar_Tab = Instance.new("TextButton", Control_Bar)
+Control_Bar_Tab.Size = UDim2.new(0, 50, 1, 0)
+Control_Bar_Tab.Position = UDim2.new(0.75, 0, 0, 0)
+Control_Bar_Tab.Text = "■"
+Control_Bar_Tab.TextSize = 30
+Control_Bar_Tab.ZIndex = math.huge
+Control_Bar_Tab.BackgroundTransparency = 1
+Control_Bar_Tab.TextColor3 = Color3.new(1, 1, 1)
+Control_Bar_Tab.MouseButton1Click:Connect(function()
+ShowNotify(
+    "",
+    "Tab not support",
+    "",  
+function() end,
+    "Ok",
+    function() Frame_Notify.Visible = false end
+)
+end)
 
 -- Notify Bar Clock
 local Notify_Bar_Clock = Instance.new("TextLabel", Notify_Bar)
@@ -242,14 +305,14 @@ Notify_Bar_Clock.Size = UDim2.new(0, 100, 1, 0)
 Notify_Bar_Clock.Position = UDim2.new(0, 20, 0, 0)
 Notify_Bar_Clock.Name = "Notify_Bar_Clock:/Clock.Time"
 Notify_Bar_Clock.TextSize = 15
-Notify_Bar_Clock.TextColor3 = Color3.new(1, 1, 1)
+Notify_Bar_Clock.TextColor3 = Color3.new(1, 1, 1) 
 Notify_Bar_Clock.BackgroundTransparency = 1
 
 -- Home
 local Home_Screen = Instance.new("ImageButton", ScreenGui)
 Home_Screen.Size = UDim2.new(1, 0, 1, 0)
 Home_Screen.Position = UDim2.new(0, 0, 0, 0)
-Home_Screen.Name = "com.homescreen.rbxos"
+Home_Screen.Name = "com_homescreen_rbxos"
 Home_Screen.AutoButtonColor = false
 Home_Screen.BackgroundColor3 = Color3.new(0, 0, 0)
 
@@ -269,6 +332,7 @@ Camera_App.MouseButton1Click:Connect(function()
 Home_Screen.Visible = false
 Camera_Frame.Visible = true
 Zoom_Base.Visible = true
+Notify_Bar.Visible = false
 ShowNotify(
     "Warning!",
     "Script just for fun\nOpen App?",
@@ -278,6 +342,7 @@ Camera_Frame.Visible = false
 Home_Screen.Visible = true
 Frame_Notify.Visible = false
 Zoom_Base.Visible = false
+Notify_Bar.Visible = true
   end,
     "Ok",
     function() Frame_Notify.Visible = false end
@@ -298,7 +363,7 @@ Camera_App_Name.TextColor3 = Color3.new(1, 1, 1)
 -- Google Search Bar
 local Google_Search_Bar = Instance.new("TextBox", Home_Screen)
 Google_Search_Bar.Size = UDim2.new(0.8, 0, 0, 35)
-Google_Search_Bar.Position = UDim2.new(0.5, 0, 0.9, 0)
+Google_Search_Bar.Position = UDim2.new(0.5, 0, 0.8, 0)
 Google_Search_Bar.BackgroundColor3 = Color3.new(1, 1, 1)
 Google_Search_Bar.AnchorPoint = Vector2.new(0.5, 0)
 Google_Search_Bar.Text = ""
@@ -321,7 +386,7 @@ local Lock_Screen= Instance.new("ImageButton", ScreenGui)
 Lock_Screen.Size = UDim2.new(1, 0, 1, 0)
 Lock_Screen.Position = UDim2.new(0, 0, 0, 0)
 Lock_Screen.Image = "rbxassetid://7866490119"
-Lock_Screen.Name = "com.lockscreen.rbxos"
+Lock_Screen.Name = "com_lockscreen_rbxos"
 Lock_Screen.AutoButtonColor = false
 local dragStart, startPos, isDragging
 
@@ -338,6 +403,7 @@ local function onInputEnded(input)
         isDragging = false
         if Lock_Screen.Position.Y.Offset < -250 then
             Lock_Screen.Visible = false
+Control_Bar.Visible = true
 ShowNotify(
     "Welcome!",
     "This script is not complete yet\nWe will try to update it",
@@ -375,12 +441,12 @@ local Swipe_Open = Instance.new("TextLabel", Lock_Screen)
 Swipe_Open.Size = UDim2.new(1, 0, 0.1, 0)
 Swipe_Open.Position = UDim2.new(0, 0, 0.9, 0)
 Swipe_Open.TextSize = 15
-Swipe_Open.Name = "com.lockscreen.rbxos:/swipe.open"
-Swipe_Open.Text = "Swipe to open"
+Swipe_Open.Name = "com_lockscreen_rbxos_swipe_open"
+Swipe_Open.Text = "Swipe up to unlock"
 Swipe_Open.BackgroundTransparency = 1
 Swipe_Open.TextColor3 = Color3.new(1, 1, 1)
 
--- Home Clock
+-- Lock Clock
 local Lock_Screen_Clock = Instance.new("TextButton", Lock_Screen)
 Lock_Screen_Clock.Size = UDim2.new(0.2, 0, 0.5, 0)
 Lock_Screen_Clock.Position = UDim2.new(0.05, 0, 0.2, 0)
